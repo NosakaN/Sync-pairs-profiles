@@ -3,7 +3,7 @@ from pathlib import Path
 import shutil, sys
 
 HERE = Path(__file__).resolve().parent.parent
-ASSET_VERSION = "pmex-level-17"
+ASSET_VERSION = "pmex-level-18"
 
 if len(sys.argv) != 3:
     raise SystemExit("Usage: build_site.py <upstream-folder> <output-folder>")
