@@ -1,4 +1,4 @@
-/* Sync Pair level badge inspired by the in-game UI */
+/* Sync Pair level badge - compact in-game inspired version */
 .syncPair {
   position: relative;
 }
@@ -10,7 +10,7 @@
   right: 2px;
   display: inline-flex;
   align-items: flex-start;
-  gap: 2px;
+  gap: 1px;
   padding: 0;
   border: 0;
   background: transparent;
@@ -19,65 +19,67 @@
   -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
-  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .28));
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .24));
 }
 
 .spt-pair-level:hover,
 .spt-pair-level:focus-visible {
-  transform: scale(1.04);
+  transform: scale(1.02);
   transform-origin: top right;
   outline: none;
 }
 
 .spt-level-prefix {
-  position: relative;
-  margin-top: 3px;
-  padding: 1px 3px 2px;
-  border: 1px solid rgba(255, 255, 255, .95);
-  border-radius: 3px;
-  background: linear-gradient(180deg, #5bc4d5 0%, #2f8fa1 58%, #26788a 100%);
+  margin-top: 2px;
+  padding: 0 2px 1px;
+  border: 1px solid rgba(255, 255, 255, .96);
+  border-radius: 2px;
+  background: linear-gradient(180deg, #67d0df 0%, #3899aa 56%, #2a7e8e 100%);
   box-shadow:
-    0 0 0 1px #276c7b,
-    inset 0 1px 0 rgba(255, 255, 255, .55),
-    0 1px 1px rgba(0, 0, 0, .28);
+    0 0 0 1px #2a6e7c,
+    inset 0 1px 0 rgba(255, 255, 255, .52),
+    0 1px 1px rgba(0, 0, 0, .22);
   color: #fff;
-  font-family: "kenya-NewRodinProN-B", "Arial Black", Impact, sans-serif;
-  font-size: 9px;
-  font-weight: 900;
-  line-height: 1.05;
-  letter-spacing: -.5px;
+  font-family: "kenya-NewRodinProN-B", sans-serif;
+  font-size: 6.2px;
+  font-weight: bold;
+  line-height: 1;
+  letter-spacing: -.35px;
   text-shadow:
-    1px 0 #286b7a,
-    -1px 0 #286b7a,
-    0 1px #286b7a,
-    0 -1px #286b7a;
+    .7px 0 #2b6d7a,
+    -.7px 0 #2b6d7a,
+    0 .7px #2b6d7a,
+    0 -.7px #2b6d7a;
   white-space: nowrap;
 }
 
 .spt-level-value {
   color: #fff;
-  font-family: "kenya-NewRodinProN-B", "Arial Black", Impact, sans-serif;
-  font-size: 27px;
-  font-weight: 900;
-  line-height: .92;
-  letter-spacing: -2px;
-  -webkit-text-stroke: 2px #2b6d7d;
+  font-family: "kenya-NewRodinProN-B", sans-serif;
+  font-size: 19px;
+  font-weight: bold;
+  line-height: .88;
+  letter-spacing: -1.55px;
+  -webkit-text-stroke: 1.45px #2a6d7c;
   paint-order: stroke fill;
   text-shadow:
-    0 1px 0 #d9fbff,
-    1px 0 0 #2b6d7d,
-    -1px 0 0 #2b6d7d,
-    0 -1px 0 #2b6d7d,
-    1px 1px 1px rgba(0, 0, 0, .32);
+    0 .7px 0 #dffbff,
+    .7px 0 0 #2a6d7c,
+    -.7px 0 0 #2a6d7c,
+    0 -.7px 0 #2a6d7c,
+    .8px .8px 1px rgba(0, 0, 0, .28);
   white-space: nowrap;
 }
 
 .spt-pair-level.is-unset .spt-level-prefix,
 .spt-pair-level.is-unset .spt-level-value {
-  opacity: .72;
+  opacity: .68;
 }
 
-/* Keep the badge compact on very small mobile cards. */
+.spt-pair-level[hidden] {
+  display: none !important;
+}
+
 @media (max-width: 600px) {
   .spt-pair-level {
     top: 1px;
@@ -86,19 +88,15 @@
   }
 
   .spt-level-prefix {
-    margin-top: 2px;
-    padding: 1px 2px;
-    font-size: 8px;
+    margin-top: 1.5px;
+    padding: 0 1.5px 1px;
+    font-size: 5.5px;
+    border-radius: 1.5px;
   }
 
   .spt-level-value {
-    font-size: 24px;
-    letter-spacing: -1.7px;
-    -webkit-text-stroke-width: 1.8px;
+    font-size: 17px;
+    letter-spacing: -1.35px;
+    -webkit-text-stroke-width: 1.25px;
   }
-}
-
-/* The native hidden attribute is used when the Sync Pair is not owned. */
-.spt-pair-level[hidden] {
-  display: none !important;
 }
