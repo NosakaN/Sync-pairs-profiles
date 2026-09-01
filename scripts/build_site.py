@@ -3,6 +3,7 @@ from pathlib import Path
 import shutil, sys
 
 HERE = Path(__file__).resolve().parent.parent
+ASSET_VERSION = "pmex-level-17"
 
 if len(sys.argv) != 3:
     raise SystemExit("Usage: build_site.py <upstream-folder> <output-folder>")
@@ -23,10 +24,10 @@ shutil.copy2(HERE / "overlay/css/pair-levels.css", output / "css/pair-levels.css
 
 index = output / "index.html"
 html = index.read_text(encoding="utf-8")
-profile_css_tag = '<link rel="stylesheet" type="text/css" href="css/profile-manager.css">'
-level_css_tag = '<link rel="stylesheet" type="text/css" href="css/pair-levels.css">'
-profile_js_tag = '<script type="text/javascript" src="js/profile-manager.js"></script>'
-level_js_tag = '<script type="text/javascript" src="js/pair-levels.js"></script>'
+profile_css_tag = f'<link rel="stylesheet" type="text/css" href="css/profile-manager.css?v={ASSET_VERSION}">'
+level_css_tag = f'<link rel="stylesheet" type="text/css" href="css/pair-levels.css?v={ASSET_VERSION}">'
+profile_js_tag = f'<script type="text/javascript" src="js/profile-manager.js?v={ASSET_VERSION}"></script>'
+level_js_tag = f'<script type="text/javascript" src="js/pair-levels.js?v={ASSET_VERSION}"></script>'
 css_anchor = '<link rel="stylesheet" type="text/css" id="viewModeCss" href="css/viewmode.css" disabled>'
 js_anchor = '<script type="module" src="js/script.js"></script>'
 
@@ -41,6 +42,9 @@ if level_css_tag not in html:
 if '<link rel="manifest" href="manifest.webmanifest">' not in html:
     meta = '\n'.join([
         '<link rel="manifest" href="manifest.webmanifest">',
+        '<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">',
+        '<meta http-equiv="Pragma" content="no-cache">',
+        '<meta http-equiv="Expires" content="0">',
         '<meta name="apple-mobile-web-app-capable" content="yes">',
         '<meta name="apple-mobile-web-app-status-bar-style" content="default">',
         '<meta name="apple-mobile-web-app-title" content="Sync Pairs Tracker">'
@@ -56,15 +60,15 @@ if level_js_tag not in html:
     html = html.replace(profile_js_tag, profile_js_tag + "\n" + level_js_tag, 1)
 
 index.write_text(html, encoding="utf-8")
-(output / "manifest.webmanifest").write_text('''{
+(output / "manifest.webmanifest").write_text(f'''{{
   "name": "Sync Pairs Tracker — Profiles",
   "short_name": "Sync Pairs",
   "description": "Sync Pairs Tracker with local multi-profile support.",
-  "start_url": "./",
+  "start_url": "./?v={ASSET_VERSION}",
   "scope": "./",
   "display": "standalone",
   "background_color": "#eef6f7",
   "theme_color": "#32788c"
-}\n''', encoding="utf-8")
+}}\n''', encoding="utf-8")
 (output / ".nojekyll").write_text("", encoding="utf-8")
-print(f"Built site in {output}")
+print(f"Built site in {output} ({ASSET_VERSION})")
