@@ -1,202 +1,104 @@
-/* Adjustable Sync Pair level overlay */
+/* Sync Pair level badge inspired by the in-game UI */
 .syncPair {
   position: relative;
 }
 
 .spt-pair-level {
   position: absolute;
-  z-index: 20;
-  left: 50%;
-  bottom: 4px;
-  transform: translateX(-50%);
-  min-width: 48px;
-  padding: 2px 7px;
-  border: 1px solid rgba(255,255,255,.7);
-  border-radius: 999px;
-  background: rgba(24, 70, 83, .92);
-  color: #fff;
-  box-shadow: 0 1px 4px rgba(0,0,0,.28);
-  font: 700 11px/1.35 Tahoma, sans-serif;
-  white-space: nowrap;
+  z-index: 60;
+  top: 2px;
+  right: 2px;
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 0;
+  border: 0;
+  background: transparent;
   cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .28));
 }
 
 .spt-pair-level:hover,
 .spt-pair-level:focus-visible {
-  filter: brightness(1.14);
-  outline: 2px solid rgba(255,255,255,.8);
-  outline-offset: 1px;
+  transform: scale(1.04);
+  transform-origin: top right;
+  outline: none;
 }
 
-.spt-pair-level.is-unset {
-  opacity: .78;
-  border-style: dashed;
-}
-
-.spt-level-editor-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 100000;
-  display: grid;
-  place-items: center;
-  padding: 18px;
-  background: rgba(0,0,0,.58);
-  backdrop-filter: blur(3px);
-}
-
-.spt-level-editor {
+.spt-level-prefix {
   position: relative;
-  width: min(390px, 100%);
-  padding: 20px;
-  border: 1px solid rgba(50,120,140,.55);
-  border-radius: 14px;
-  background: #eef6f7;
-  color: #163b45;
-  box-shadow: 0 20px 55px rgba(0,0,0,.34);
-  font-family: Tahoma, sans-serif;
-  text-align: center;
-}
-
-.spt-level-close {
-  position: absolute;
-  top: 8px;
-  right: 9px;
-  width: 34px;
-  height: 34px;
-  border: 0;
-  border-radius: 50%;
-  background: transparent;
-  color: #32788c;
-  font-size: 27px;
-  line-height: 1;
-  cursor: pointer;
-}
-
-.spt-level-kicker {
-  margin-bottom: 5px;
-  color: #4c8898;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: .12em;
-}
-
-.spt-level-editor h2 {
-  margin: 0 32px 4px;
-  font-size: 19px;
-  line-height: 1.2;
-}
-
-.spt-level-current {
-  margin-bottom: 16px;
-  color: #56747c;
-  font-size: 12px;
-}
-
-.spt-level-stepper {
-  display: grid;
-  grid-template-columns: 48px 1fr 48px;
-  gap: 7px;
-  margin: 0 auto 13px;
-}
-
-.spt-level-stepper button,
-.spt-level-quick button,
-.spt-level-actions button {
-  border: 1px solid #82aeb5;
-  border-radius: 8px;
-  background: #fff;
-  color: #27677a;
-  font: 700 14px Tahoma, sans-serif;
-  cursor: pointer;
-}
-
-.spt-level-stepper button {
-  min-height: 48px;
-  font-size: 23px;
-}
-
-.spt-level-input {
-  min-width: 0;
-  border: 2px solid #82aeb5;
-  border-radius: 8px;
-  background: white;
-  color: #163b45;
-  font: 800 22px Tahoma, sans-serif;
-  text-align: center;
-}
-
-.spt-level-quick {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 7px;
-}
-
-.spt-level-quick button {
-  min-height: 39px;
-}
-
-.spt-level-quick button.is-active {
-  background: #32788c;
+  margin-top: 3px;
+  padding: 1px 3px 2px;
+  border: 1px solid rgba(255, 255, 255, .95);
+  border-radius: 3px;
+  background: linear-gradient(180deg, #5bc4d5 0%, #2f8fa1 58%, #26788a 100%);
+  box-shadow:
+    0 0 0 1px #276c7b,
+    inset 0 1px 0 rgba(255, 255, 255, .55),
+    0 1px 1px rgba(0, 0, 0, .28);
   color: #fff;
-  border-color: #32788c;
+  font-family: "kenya-NewRodinProN-B", "Arial Black", Impact, sans-serif;
+  font-size: 9px;
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -.5px;
+  text-shadow:
+    1px 0 #286b7a,
+    -1px 0 #286b7a,
+    0 1px #286b7a,
+    0 -1px #286b7a;
+  white-space: nowrap;
 }
 
-.spt-level-note {
-  margin-top: 11px;
-  color: #6f5f30;
-  font-size: 11px;
+.spt-level-value {
+  color: #fff;
+  font-family: "kenya-NewRodinProN-B", "Arial Black", Impact, sans-serif;
+  font-size: 27px;
+  font-weight: 900;
+  line-height: .92;
+  letter-spacing: -2px;
+  -webkit-text-stroke: 2px #2b6d7d;
+  paint-order: stroke fill;
+  text-shadow:
+    0 1px 0 #d9fbff,
+    1px 0 0 #2b6d7d,
+    -1px 0 0 #2b6d7d,
+    0 -1px 0 #2b6d7d,
+    1px 1px 1px rgba(0, 0, 0, .32);
+  white-space: nowrap;
 }
 
-.spt-level-actions {
-  display: grid;
-  grid-template-columns: 1fr 1.4fr;
-  gap: 8px;
-  margin-top: 16px;
+.spt-pair-level.is-unset .spt-level-prefix,
+.spt-pair-level.is-unset .spt-level-value {
+  opacity: .72;
 }
 
-.spt-level-actions button {
-  min-height: 43px;
-}
-
-.spt-level-save {
-  background: #32788c !important;
-  color: white !important;
-  border-color: #32788c !important;
-}
-
+/* Keep the badge compact on very small mobile cards. */
 @media (max-width: 600px) {
   .spt-pair-level {
-    bottom: 3px;
-    min-width: 44px;
-    padding: 2px 5px;
-    font-size: 10px;
+    top: 1px;
+    right: 1px;
+    gap: 1px;
   }
 
-  .spt-level-editor-backdrop {
-    align-items: end;
-    padding: 0;
+  .spt-level-prefix {
+    margin-top: 2px;
+    padding: 1px 2px;
+    font-size: 8px;
   }
 
-  .spt-level-editor {
-    width: 100%;
-    border-radius: 16px 16px 0 0;
-    padding: 20px max(18px, env(safe-area-inset-right)) calc(20px + env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left));
+  .spt-level-value {
+    font-size: 24px;
+    letter-spacing: -1.7px;
+    -webkit-text-stroke-width: 1.8px;
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  .spt-level-editor {
-    background: #182c32;
-    color: #eef8fa;
-    border-color: rgba(130,174,181,.55);
-  }
-  .spt-level-current { color: #a9c3c9; }
-  .spt-level-input,
-  .spt-level-stepper button,
-  .spt-level-quick button,
-  .spt-level-actions button {
-    background: #223c43;
-    color: #eef8fa;
-  }
+/* The native hidden attribute is used when the Sync Pair is not owned. */
+.spt-pair-level[hidden] {
+  display: none !important;
 }
