@@ -29,45 +29,60 @@
   outline: none;
 }
 
+/* The source JS still contains Nv.; visually replace it with the game's N. badge. */
 .spt-level-prefix {
-  margin-top: 2px;
-  padding: 0 2px 1px;
-  border: 1px solid rgba(255, 255, 255, .96);
+  box-sizing: border-box;
+  width: 12px;
+  height: 9px;
+  margin-top: 3px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, .98);
   border-radius: 2px;
-  background: linear-gradient(180deg, #67d0df 0%, #3899aa 56%, #2a7e8e 100%);
+  background: linear-gradient(180deg, #63cfdf 0%, #389aaa 55%, #2a7e8e 100%);
   box-shadow:
-    0 0 0 1px #2a6e7c,
-    inset 0 1px 0 rgba(255, 255, 255, .52),
-    0 1px 1px rgba(0, 0, 0, .22);
+    0 0 0 1px #2b6e7c,
+    inset 0 1px 0 rgba(255, 255, 255, .55),
+    0 1px 1px rgba(0, 0, 0, .20);
+  color: transparent;
+  font-size: 0;
+  white-space: nowrap;
+}
+
+.spt-level-prefix::before {
+  content: "N.";
   color: #fff;
   font-family: "kenya-NewRodinProN-B", sans-serif;
-  font-size: 6.2px;
+  font-size: 6.7px;
   font-weight: bold;
   line-height: 1;
-  letter-spacing: -.35px;
+  letter-spacing: -.55px;
+  transform: translate(-.2px, -.1px);
   text-shadow:
-    .7px 0 #2b6d7a,
-    -.7px 0 #2b6d7a,
-    0 .7px #2b6d7a,
-    0 -.7px #2b6d7a;
-  white-space: nowrap;
+    .65px 0 #2b6d7a,
+    -.65px 0 #2b6d7a,
+    0 .65px #2b6d7a,
+    0 -.65px #2b6d7a;
 }
 
 .spt-level-value {
   color: #fff;
   font-family: "kenya-NewRodinProN-B", sans-serif;
-  font-size: 19px;
+  font-size: 18px;
   font-weight: bold;
   line-height: .88;
-  letter-spacing: -1.55px;
-  -webkit-text-stroke: 1.45px #2a6d7c;
+  letter-spacing: -1.45px;
+  -webkit-text-stroke: 1.35px #2a6d7c;
   paint-order: stroke fill;
   text-shadow:
-    0 .7px 0 #dffbff,
+    0 .7px 0 #e7fdff,
     .7px 0 0 #2a6d7c,
     -.7px 0 0 #2a6d7c,
     0 -.7px 0 #2a6d7c,
-    .8px .8px 1px rgba(0, 0, 0, .28);
+    .8px .8px 1px rgba(0, 0, 0, .26);
   white-space: nowrap;
 }
 
@@ -88,15 +103,19 @@
   }
 
   .spt-level-prefix {
-    margin-top: 1.5px;
-    padding: 0 1.5px 1px;
-    font-size: 5.5px;
+    width: 11px;
+    height: 8px;
+    margin-top: 2.5px;
     border-radius: 1.5px;
   }
 
+  .spt-level-prefix::before {
+    font-size: 6.1px;
+  }
+
   .spt-level-value {
-    font-size: 17px;
-    letter-spacing: -1.35px;
-    -webkit-text-stroke-width: 1.25px;
+    font-size: 16.5px;
+    letter-spacing: -1.3px;
+    -webkit-text-stroke-width: 1.2px;
   }
 }
