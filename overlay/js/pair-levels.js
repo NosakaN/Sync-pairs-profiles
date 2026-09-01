@@ -5,9 +5,8 @@
   const PROFILE_STORE = "sptProfilesV1";
   const ACTIVE_PROFILE = "sptActiveProfileV1";
   const PENDING_DUPLICATE = "sptPairLevelsDuplicateFromV1";
-  const NORMAL_MAX = 200;
-  const EGG_MAX = 150;
-  const QUICK_LEVELS = [1, 100, 140, 150, 180, 200];
+  const NORMAL_LEVELS = [1, 100, 140, 150, 180, 200];
+  const EGG_LEVELS = [1, 100, 140, 150];
 
   const readJSON = (key, fallback) => {
     try {
@@ -66,8 +65,19 @@
       document.getElementById("btnEggs")?.classList.contains("btnEggsON") || false;
   }
 
-  function maxLevel() {
-    return isEggMode() ? EGG_MAX : NORMAL_MAX;
+  function levelSteps() {
+    return isEggMode() ? EGG_LEVELS : NORMAL_LEVELS;
+  }
+
+  function nextLevel(current) {
+    const steps = levelSteps();
+    if (current == null) return steps[0];
+
+    const exact = steps.indexOf(current);
+    if (exact >= 0) return steps[(exact + 1) % steps.length];
+
+    // Keeps old freely-entered values usable: 137 -> 140, 153 -> 180, etc.
+    return steps.find(level => level > current) ?? steps[0];
   }
 
   function decorate(card) {
@@ -79,17 +89,15 @@
     button.type = "button";
     button.className = "spt-pair-level";
     button.dataset.pairKey = key;
-    button.setAttribute("aria-label", `Set level for ${pairLabel(card)}`);
-    button.addEventListener("click", (event) => {
+    button.innerHTML = '<span class="spt-level-prefix">Nv.</span><span class="spt-level-value">—</span>';
+
+    button.addEventListener("click", event => {
       event.preventDefault();
       event.stopPropagation();
-      openEditor(card);
+      const current = getLevel(key);
+      setLevel(key, nextLevel(current));
     });
-    button.addEventListener("contextmenu", (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      openEditor(card);
-    });
+
     card.appendChild(button);
   }
 
@@ -104,8 +112,15 @@
 
     const key = pairKey(card);
     const level = key ? getLevel(key) : null;
-    button.textContent = level == null ? "Lv. —" : `Lv. ${level}`;
+    const value = button.querySelector(".spt-level-value");
+    if (value) value.textContent = level == null ? "—" : String(level);
+
     button.classList.toggle("is-unset", level == null);
+    button.setAttribute(
+      "aria-label",
+      `${pairLabel(card)}: ${level == null ? "level not set" : `level ${level}`}. Click for next level.`
+    );
+    button.title = `${level == null ? "Niveau non défini" : `Nv. ${level}`} — cliquer pour passer au palier suivant`;
   }
 
   let refreshFrame = 0;
@@ -115,112 +130,6 @@
       refreshFrame = 0;
       document.querySelectorAll(".syncPair").forEach(refreshCard);
     });
-  }
-
-  function closeEditor() {
-    document.getElementById("sptLevelEditor")?.remove();
-  }
-
-  function openEditor(card) {
-    closeEditor();
-    const key = pairKey(card);
-    if (!key) return;
-
-    const current = getLevel(key);
-    const max = maxLevel();
-    const root = document.createElement("div");
-    root.id = "sptLevelEditor";
-    root.className = "spt-level-editor-backdrop";
-    root.innerHTML = `
-      <div class="spt-level-editor" role="dialog" aria-modal="true" aria-labelledby="sptLevelTitle">
-        <button type="button" class="spt-level-close" aria-label="Close">×</button>
-        <div class="spt-level-kicker">SYNC PAIR LEVEL</div>
-        <h2 id="sptLevelTitle">${escapeHTML(pairLabel(card))}</h2>
-        <div class="spt-level-current">${current == null ? "Level not set" : `Current level: ${current}`}</div>
-
-        <div class="spt-level-stepper">
-          <button type="button" data-step="-1" aria-label="Decrease level">−</button>
-          <input class="spt-level-input" type="number" inputmode="numeric" min="1" max="${max}" step="1" placeholder="1–${max}" value="${current ?? ""}">
-          <button type="button" data-step="1" aria-label="Increase level">＋</button>
-        </div>
-
-        <div class="spt-level-quick" aria-label="Level shortcuts">
-          ${QUICK_LEVELS.filter(level => level <= max).map(level =>
-            `<button type="button" data-level="${level}" class="${current === level ? "is-active" : ""}">${level}</button>`
-          ).join("")}
-        </div>
-
-        ${max === EGG_MAX ? '<div class="spt-level-note">Egg Sync Pairs are capped at Lv. 150.</div>' : ""}
-
-        <div class="spt-level-actions">
-          <button type="button" class="spt-level-clear">Clear</button>
-          <button type="button" class="spt-level-save">Save</button>
-        </div>
-      </div>`;
-
-    document.body.appendChild(root);
-    const input = root.querySelector(".spt-level-input");
-
-    const clampInput = (value) => Math.max(1, Math.min(max, Math.round(value)));
-    const setInput = (value) => {
-      input.value = String(clampInput(value));
-      root.querySelectorAll("[data-level]").forEach(button => {
-        button.classList.toggle("is-active", Number(button.dataset.level) === Number(input.value));
-      });
-    };
-
-    root.querySelector(".spt-level-close").onclick = closeEditor;
-    root.addEventListener("click", event => { if (event.target === root) closeEditor(); });
-
-    root.querySelectorAll("[data-step]").forEach(button => {
-      button.onclick = () => {
-        const base = input.value === "" ? 1 : Number(input.value);
-        setInput(base + Number(button.dataset.step));
-      };
-    });
-
-    root.querySelectorAll("[data-level]").forEach(button => {
-      button.onclick = () => setInput(Number(button.dataset.level));
-    });
-
-    input.addEventListener("input", () => {
-      root.querySelectorAll("[data-level]").forEach(button => {
-        button.classList.toggle("is-active", Number(button.dataset.level) === Number(input.value));
-      });
-    });
-
-    input.addEventListener("keydown", event => {
-      if (event.key === "Enter") root.querySelector(".spt-level-save").click();
-      if (event.key === "Escape") closeEditor();
-    });
-
-    root.querySelector(".spt-level-clear").onclick = () => {
-      setLevel(key, null);
-      closeEditor();
-    };
-
-    root.querySelector(".spt-level-save").onclick = () => {
-      const value = Number(input.value);
-      if (!Number.isInteger(value) || value < 1 || value > max) {
-        input.setCustomValidity(`Choose a whole number from 1 to ${max}.`);
-        input.reportValidity();
-        input.setCustomValidity("");
-        return;
-      }
-      setLevel(key, value);
-      closeEditor();
-    };
-
-    setTimeout(() => input.focus(), 0);
-  }
-
-  function escapeHTML(value) {
-    return String(value)
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
   }
 
   function copyLevelsAfterDuplicate() {
@@ -391,6 +300,7 @@
   window.SyncPairsLevels = {
     get: getLevel,
     set: setLevel,
+    next: current => nextLevel(current),
     refresh: refreshAll
   };
 })();
