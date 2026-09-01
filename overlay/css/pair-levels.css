@@ -1,4 +1,4 @@
-/* Sync Pair level badge - compact in-game inspired version */
+/* Sync Pair level badge closely matched to the in-game Pokemon Masters UI */
 .syncPair {
   position: relative;
 }
@@ -6,11 +6,11 @@
 .spt-pair-level {
   position: absolute;
   z-index: 60;
-  top: 2px;
-  right: 2px;
+  top: -1px;
+  right: -2px;
   display: inline-flex;
   align-items: flex-start;
-  gap: 1px;
+  gap: 0;
   padding: 0;
   border: 0;
   background: transparent;
@@ -19,36 +19,37 @@
   -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
-  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .24));
+  transform-origin: top right;
 }
 
 .spt-pair-level:hover,
 .spt-pair-level:focus-visible {
-  transform: scale(1.02);
-  transform-origin: top right;
+  transform: scale(1.025);
   outline: none;
 }
 
-/* The source JS still contains Nv.; visually replace it with the game's N. badge. */
+/* In-game label: compact teal rounded square with N. */
 .spt-level-prefix {
   box-sizing: border-box;
-  width: 12px;
-  height: 9px;
-  margin-top: 3px;
+  width: 15px;
+  height: 15px;
+  margin-top: 1px;
+  margin-right: -1px;
   padding: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, .98);
-  border-radius: 2px;
-  background: linear-gradient(180deg, #63cfdf 0%, #389aaa 55%, #2a7e8e 100%);
+  border: 1px solid rgba(228, 252, 252, .95);
+  border-radius: 2.5px;
+  background: #3c7481;
   box-shadow:
-    0 0 0 1px #2b6e7c,
-    inset 0 1px 0 rgba(255, 255, 255, .55),
-    0 1px 1px rgba(0, 0, 0, .20);
+    0 0 0 1.35px #2c6472,
+    0 0 2px 1px rgba(120, 188, 192, .85),
+    inset 0 1px 1px rgba(255, 255, 255, .18);
   color: transparent;
   font-size: 0;
+  line-height: 1;
   white-space: nowrap;
 }
 
@@ -56,33 +57,37 @@
   content: "N.";
   color: #fff;
   font-family: "kenya-NewRodinProN-B", sans-serif;
-  font-size: 6.7px;
+  font-size: 9px;
   font-weight: bold;
   line-height: 1;
-  letter-spacing: -.55px;
-  transform: translate(-.2px, -.1px);
+  letter-spacing: -.85px;
+  transform: translate(-.15px, -.25px);
+  -webkit-text-stroke: .35px rgba(255,255,255,.8);
   text-shadow:
-    .65px 0 #2b6d7a,
-    -.65px 0 #2b6d7a,
-    0 .65px #2b6d7a,
-    0 -.65px #2b6d7a;
+    .8px 0 #396f7b,
+    -.8px 0 #396f7b,
+    0 .8px #396f7b,
+    0 -.8px #396f7b,
+    0 0 1px #9bc9ca;
 }
 
+/* White, wide digits with the thick teal outline visible in the game. */
 .spt-level-value {
+  display: inline-block;
   color: #fff;
   font-family: "kenya-NewRodinProN-B", sans-serif;
-  font-size: 18px;
+  font-size: 22px;
   font-weight: bold;
-  line-height: .88;
-  letter-spacing: -1.45px;
-  -webkit-text-stroke: 1.35px #2a6d7c;
+  line-height: .82;
+  letter-spacing: -1.9px;
+  transform: scaleX(1.055);
+  transform-origin: left top;
+  -webkit-text-stroke: 2.15px #3b7280;
   paint-order: stroke fill;
   text-shadow:
-    0 .7px 0 #e7fdff,
-    .7px 0 0 #2a6d7c,
-    -.7px 0 0 #2a6d7c,
-    0 -.7px 0 #2a6d7c,
-    .8px .8px 1px rgba(0, 0, 0, .26);
+    0 0 1px #a4d0d0,
+    0 0 2px rgba(108, 174, 180, .8),
+    1px 1px 1px rgba(37, 80, 90, .32);
   white-space: nowrap;
 }
 
@@ -95,27 +100,26 @@
   display: none !important;
 }
 
+/* Native cards are ~100px wide even on mobile, so keep the same proportions. */
 @media (max-width: 600px) {
   .spt-pair-level {
-    top: 1px;
-    right: 1px;
-    gap: 1px;
+    top: -1px;
+    right: -2px;
   }
 
   .spt-level-prefix {
-    width: 11px;
-    height: 8px;
-    margin-top: 2.5px;
-    border-radius: 1.5px;
+    width: 14px;
+    height: 14px;
+    margin-top: 1px;
   }
 
   .spt-level-prefix::before {
-    font-size: 6.1px;
+    font-size: 8.4px;
   }
 
   .spt-level-value {
-    font-size: 16.5px;
-    letter-spacing: -1.3px;
-    -webkit-text-stroke-width: 1.2px;
+    font-size: 21px;
+    letter-spacing: -1.8px;
+    -webkit-text-stroke-width: 2px;
   }
 }
