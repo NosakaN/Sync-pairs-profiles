@@ -57,37 +57,37 @@
   content: "N.";
   color: #fff;
   font-family: "kenya-NewRodinProN-B", sans-serif;
-  font-size: 9px;
+  font-size: 8.2px;
   font-weight: bold;
   line-height: 1;
-  letter-spacing: -.85px;
-  transform: translate(-.15px, -.25px);
-  -webkit-text-stroke: .35px rgba(255,255,255,.8);
+  letter-spacing: -.78px;
+  transform: translate(-.15px, -.2px);
+  -webkit-text-stroke: .3px rgba(255,255,255,.8);
   text-shadow:
-    .8px 0 #396f7b,
-    -.8px 0 #396f7b,
-    0 .8px #396f7b,
-    0 -.8px #396f7b,
+    .72px 0 #396f7b,
+    -.72px 0 #396f7b,
+    0 .72px #396f7b,
+    0 -.72px #396f7b,
     0 0 1px #9bc9ca;
 }
 
-/* White, wide digits with the thick teal outline visible in the game. */
+/* White digits with the teal outline visible in the game. */
 .spt-level-value {
   display: inline-block;
   color: #fff;
   font-family: "kenya-NewRodinProN-B", sans-serif;
-  font-size: 22px;
+  font-size: 20.2px;
   font-weight: bold;
-  line-height: .82;
-  letter-spacing: -1.9px;
-  transform: scaleX(1.055);
+  line-height: .84;
+  letter-spacing: -1.65px;
+  transform: scaleX(1.045);
   transform-origin: left top;
-  -webkit-text-stroke: 2.15px #3b7280;
+  -webkit-text-stroke: 1.9px #3b7280;
   paint-order: stroke fill;
   text-shadow:
     0 0 1px #a4d0d0,
-    0 0 2px rgba(108, 174, 180, .8),
-    1px 1px 1px rgba(37, 80, 90, .32);
+    0 0 2px rgba(108, 174, 180, .72),
+    1px 1px 1px rgba(37, 80, 90, .28);
   white-space: nowrap;
 }
 
@@ -114,12 +114,13 @@
   }
 
   .spt-level-prefix::before {
-    font-size: 8.4px;
+    font-size: 7.7px;
+    letter-spacing: -.72px;
   }
 
   .spt-level-value {
-    font-size: 21px;
-    letter-spacing: -1.8px;
-    -webkit-text-stroke-width: 2px;
+    font-size: 19.2px;
+    letter-spacing: -1.55px;
+    -webkit-text-stroke-width: 1.8px;
   }
 }
