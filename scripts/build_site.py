@@ -3,7 +3,7 @@ from pathlib import Path
 import shutil, sys
 
 HERE = Path(__file__).resolve().parent.parent
-ASSET_VERSION = "pmex-level-19"
+ASSET_VERSION = "pmex-level-20"
 
 if len(sys.argv) != 3:
     raise SystemExit("Usage: build_site.py <upstream-folder> <output-folder>")
@@ -20,6 +20,7 @@ shutil.copytree(upstream, output, ignore=shutil.ignore_patterns(".git", ".github
 shutil.copy2(HERE / "overlay/js/profile-manager.js", output / "js/profile-manager.js")
 shutil.copy2(HERE / "overlay/css/profile-manager.css", output / "css/profile-manager.css")
 shutil.copy2(HERE / "overlay/js/pair-levels.js", output / "js/pair-levels.js")
+shutil.copy2(HERE / "overlay/js/level-bulk.js", output / "js/level-bulk.js")
 shutil.copy2(HERE / "overlay/css/pair-levels.css", output / "css/pair-levels.css")
 
 index = output / "index.html"
@@ -28,6 +29,7 @@ profile_css_tag = f'<link rel="stylesheet" type="text/css" href="css/profile-man
 level_css_tag = f'<link rel="stylesheet" type="text/css" href="css/pair-levels.css?v={ASSET_VERSION}">'
 profile_js_tag = f'<script type="text/javascript" src="js/profile-manager.js?v={ASSET_VERSION}"></script>'
 level_js_tag = f'<script type="text/javascript" src="js/pair-levels.js?v={ASSET_VERSION}"></script>'
+bulk_js_tag = f'<script type="text/javascript" src="js/level-bulk.js?v={ASSET_VERSION}"></script>'
 css_anchor = '<link rel="stylesheet" type="text/css" id="viewModeCss" href="css/viewmode.css" disabled>'
 js_anchor = '<script type="module" src="js/script.js"></script>'
 
@@ -58,6 +60,9 @@ if profile_js_tag not in html:
 
 if level_js_tag not in html:
     html = html.replace(profile_js_tag, profile_js_tag + "\n" + level_js_tag, 1)
+
+if bulk_js_tag not in html:
+    html = html.replace(level_js_tag, level_js_tag + "\n" + bulk_js_tag, 1)
 
 index.write_text(html, encoding="utf-8")
 (output / "manifest.webmanifest").write_text(f'''{{
