@@ -56,7 +56,7 @@
 .spt-level-prefix::before {
   content: "N.";
   color: #fff;
-  font-family: "kenya-NewRodinProN-B", sans-serif;
+  font-family: "kenya-SouthSide", sans-serif;
   font-size: 8.2px;
   font-weight: bold;
   line-height: 1;
@@ -75,7 +75,7 @@
 .spt-level-value {
   display: inline-block;
   color: #fff;
-  font-family: "kenya-NewRodinProN-B", sans-serif;
+  font-family: "kenya-SouthSide", sans-serif;
   font-size: 20.2px;
   font-weight: bold;
   line-height: .84;
