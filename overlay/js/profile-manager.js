@@ -445,6 +445,7 @@
   }
 
   function openCompare() {
+    window.SyncPairsProfiles?.save?.();
     const profiles = getProfiles();
     const profileList = Object.values(profiles);
 
