@@ -18,7 +18,7 @@
 
   function isPairEntry(key, value) {
     if (typeof key !== "string" || typeof value !== "string") return false;
-    if ((key.match(/\|/g) || []).length !== 1) return false;
+    if (!key.includes("|")) return false;
     const parts = value.split("|");
     return parts.length === 6 && /^\d+$/.test(parts[0]) && /^\d+$/.test(parts[1]) && /^\d+$/.test(parts[2]) && /^\d+$/.test(parts[4]) && /^\d+$/.test(parts[5]);
   }
@@ -192,4 +192,434 @@
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init, {once:true}); else init();
   window.SyncPairsProfiles = { save, switchTo, create, getActive:()=>state.profiles[state.activeId]||null };
+})();
+
+
+/*-----------------------------------------------------------------------------
+  PROFILE COMPARISON + NEW SINCE LAST VISIT
+-----------------------------------------------------------------------------*/
+(() => {
+  "use strict";
+
+  const PROFILE_STORE = "sptProfilesV1";
+  const NEW_STORE = "sptNewSinceLastVisitV1";
+  const catalogPromise = fetch("js/syncpairs.json", { cache: "no-store" })
+    .then(r => {
+      if (!r.ok) throw new Error("Unable to load sync pair catalog");
+      return r.json();
+    })
+    .then(data => Array.isArray(data?.SYNCPAIRS) ? data.SYNCPAIRS : []);
+
+  const esc = (s) => String(s ?? "")
+    .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;").replaceAll("'","&#039;");
+
+  const readJSON = (key, fallback) => {
+    try {
+      const value = localStorage.getItem(key);
+      return value == null ? fallback : JSON.parse(value);
+    } catch {
+      return fallback;
+    }
+  };
+
+  const writeJSON = (key, value) => localStorage.setItem(key, JSON.stringify(value));
+  const now = () => new Date().toISOString();
+
+  function pairKey(pair) {
+    return String(pair?.trainerName || "") + "|" + String(pair?.pokemonNumber || "");
+  }
+
+  function localDateKey(date = new Date()) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return y + "-" + m + "-" + d;
+  }
+
+  function isReleased(pair) {
+    return !!pair?.releaseDate && pair.releaseDate <= localDateKey();
+  }
+
+  function getReleasedPairs(catalog) {
+    return catalog.filter(isReleased);
+  }
+
+  function getProfiles() {
+    const data = readJSON(PROFILE_STORE, null);
+    return data?.version === 1 && data.profiles ? data.profiles : {};
+  }
+
+  function profileLabel(pair) {
+    const trainer = pair?.trainerName || "Unknown Trainer";
+    const pokemon = pair?.pokemonName || "Unknown Pokémon";
+    const forms = Array.isArray(pair?.pokemonForm) && pair.pokemonForm.length
+      ? " — " + pair.pokemonForm.join(", ")
+      : "";
+    return trainer + " — " + pokemon + forms;
+  }
+
+  function formatDate(value) {
+    if (!value) return "";
+    const parts = value.split("-");
+    if (parts.length !== 3) return value;
+    return parts[2] + "/" + parts[1] + "/" + parts[0];
+  }
+
+  function getNewState(catalog) {
+    const released = getReleasedPairs(catalog);
+    let state = readJSON(NEW_STORE, null);
+
+    if (!state || state.version !== 1 || !state.initializedAt) {
+      state = {
+        version: 1,
+        initializedAt: now(),
+        lastVisitAt: now(),
+        seenKeys: Object.fromEntries(released.map(pair => [pairKey(pair), true]))
+      };
+      writeJSON(NEW_STORE, state);
+      return { state, newPairs: [] };
+    }
+
+    state.lastVisitAt = now();
+    writeJSON(NEW_STORE, state);
+
+    const newPairs = released.filter(pair => !state.seenKeys?.[pairKey(pair)]);
+    return { state, newPairs };
+  }
+
+  async function getNewPairs() {
+    const catalog = await catalogPromise;
+    return getNewState(catalog).newPairs;
+  }
+
+  function markAllSeen() {
+    catalogPromise.then(catalog => {
+      const released = getReleasedPairs(catalog);
+      const state = readJSON(NEW_STORE, null) || {
+        version: 1,
+        initializedAt: now(),
+        seenKeys: {}
+      };
+      state.version = 1;
+      state.seenKeys = state.seenKeys || {};
+      released.forEach(pair => { state.seenKeys[pairKey(pair)] = true; });
+      state.markedAt = now();
+      state.lastVisitAt = now();
+      writeJSON(NEW_STORE, state);
+      updateNewCount(0);
+      document.querySelector(".spt-modal-backdrop[data-spt-modal='new']")?.remove();
+    }).catch(() => {});
+  }
+
+  function updateNewCount(value) {
+    const badge = document.querySelector("[data-feature='new'] .spt-feature-badge");
+    if (badge) badge.textContent = String(value);
+  }
+
+  function createModal(type, title) {
+    document.querySelector(".spt-modal-backdrop[data-spt-modal='" + type + "']")?.remove();
+
+    const backdrop = document.createElement("div");
+    backdrop.className = "spt-modal-backdrop";
+    backdrop.dataset.sptModal = type;
+    backdrop.innerHTML = `
+      <div class="spt-modal" role="dialog" aria-modal="true" aria-label="${{esc(title)}">
+        <div class="spt-modal-head">
+          <div>
+            <small>SYNC PAIRS TRACKER</small>
+            <h2>${{esc(title)}</h2>
+          </div>
+          <button type="button" class="spt-modal-close" aria-label="Close">×</button>
+        </div>
+        <div class="spt-modal-body"></div>
+      </div>`;
+
+    document.body.appendChild(backdrop);
+
+    const close = () => backdrop.remove();
+    backdrop.querySelector(".spt-modal-close").onclick = close;
+    backdrop.addEventListener("click", e => { if (e.target === backdrop) close(); });
+    backdrop.querySelector(".spt-modal").addEventListener("click", e => e.stopPropagation());
+
+    const onKey = e => {
+      if (e.key === "Escape") {
+        close();
+        document.removeEventListener("keydown", onKey);
+      }
+    };
+    document.addEventListener("keydown", onKey);
+
+    return { backdrop, body: backdrop.querySelector(".spt-modal-body"), close };
+  }
+
+  async function openNewSinceLastVisit() {
+    const modal = createModal("new", "New since your last visit");
+    modal.body.innerHTML = '<div class="spt-loading">Loading Sync Pairs…</div>';
+
+    try {
+      const newPairs = await getNewPairs();
+      updateNewCount(newPairs.length);
+
+      const rows = newPairs
+        .slice()
+        .sort((a,b) => String(b.releaseDate).localeCompare(String(a.releaseDate)))
+        .map(pair => `
+          <div class="spt-new-row">
+            <div class="spt-new-main">
+              <strong>${{esc(profileLabel(pair))}</strong>
+              <small>Released ${{esc(formatDate(pair.releaseDate))}</small>
+            </div>
+            <span class="spt-new-tag">NEW</span>
+          </div>`)
+        .join("");
+
+      modal.body.innerHTML = `
+        <div class="spt-new-summary">
+          <strong>${{newPairs.length}</strong>
+          <span>new Sync Pair${{newPairs.length === 1 ? "" : "s"}</span>
+        </div>
+        ${{rows || '<div class="spt-empty">No new Sync Pairs since your last visit.</div>'}
+        <div class="spt-modal-actions">
+          <button type="button" class="spt-modal-btn spt-modal-primary" data-action="mark-seen">Mark all as seen</button>
+          <button type="button" class="spt-modal-btn" data-action="close">Close</button>
+        </div>`;
+
+      modal.body.querySelector("[data-action='mark-seen']").onclick = markAllSeen;
+      modal.body.querySelector("[data-action='close']").onclick = modal.close;
+    } catch {
+      modal.body.innerHTML = `
+        <div class="spt-empty">Unable to load the Sync Pair catalog.</div>
+        <div class="spt-modal-actions">
+          <button type="button" class="spt-modal-btn" data-action="close">Close</button>
+        </div>`;
+      modal.body.querySelector("[data-action='close']").onclick = modal.close;
+    }
+  }
+
+  function pairMap(catalog, profiles) {
+    const map = new Map();
+    getReleasedPairs(catalog).forEach(pair => map.set(pairKey(pair), pair));
+
+    Object.values(profiles).forEach(profile => {
+      Object.keys(profile?.snapshot?.pairs || {}).forEach(key => {
+        if (!map.has(key)) {
+          const separator = key.indexOf("|");
+          const trainer = separator >= 0 ? key.slice(0, separator) : key;
+          const pokemonNumber = separator >= 0 ? key.slice(separator + 1) : "";
+          map.set(key, {
+            trainerName: trainer,
+            pokemonNumber,
+            pokemonName: pokemonNumber ? "Pokémon #" + pokemonNumber : "Unknown Pokémon",
+            releaseDate: ""
+          });
+        }
+      });
+    });
+
+    return map;
+  }
+
+  function comparisonRows(catalog, profileA, profileB, filter) {
+    const profiles = getProfiles();
+    const map = pairMap(catalog, profiles);
+    const pairsA = profileA?.snapshot?.pairs || {};
+    const pairsB = profileB?.snapshot?.pairs || {};
+
+    const rows = [];
+    for (const [key, pair] of map) {
+      const a = Object.prototype.hasOwnProperty.call(pairsA, key);
+      const b = Object.prototype.hasOwnProperty.call(pairsB, key);
+      const status = a && b ? "both" : a ? "onlyA" : b ? "onlyB" : "neither";
+      if (filter !== "all" && filter !== status) continue;
+      rows.push({ key, pair, status, label: profileLabel(pair) });
+    }
+
+    rows.sort((x,y) => {
+      const byName = x.label.localeCompare(y.label, undefined, { sensitivity: "base" });
+      if (byName) return byName;
+      return String(x.pair.releaseDate).localeCompare(String(y.pair.releaseDate));
+    });
+
+    return rows;
+  }
+
+  function openCompare() {
+    const profiles = getProfiles();
+    const profileList = Object.values(profiles);
+
+    if (profileList.length < 2) {
+      alert("Create at least two profiles to compare them.");
+      return;
+    }
+
+    const activeId = localStorage.getItem("sptActiveProfileV1");
+    const firstA = profiles[activeId] ? activeId : profileList[0].id;
+    const firstB = profileList.find(p => p.id !== firstA)?.id || profileList[1].id;
+
+    const modal = createModal("compare", "Compare profiles");
+    modal.body.innerHTML = `
+      <div class="spt-compare-selectors">
+        <label>Profile A<select data-role="profile-a">${{profileList.map(p =>
+          `<option value="${{esc(p.id)}" ${{p.id===firstA?"selected":""}>${{esc(p.name)}</option>`).join("")}</select></label>
+        <div class="spt-compare-vs">VS</div>
+        <label>Profile B<select data-role="profile-b">${{profileList.map(p =>
+          `<option value="${{esc(p.id)}" ${{p.id===firstB?"selected":""}>${{esc(p.name)}</option>`).join("")}</select></label>
+      </div>
+      <div class="spt-compare-content"><div class="spt-loading">Loading Sync Pairs…</div></div>`;
+
+    const content = modal.body.querySelector(".spt-compare-content");
+    const selectA = modal.body.querySelector("[data-role='profile-a']");
+    const selectB = modal.body.querySelector("[data-role='profile-b']");
+    let filter = "all";
+
+    function render() {
+      const currentProfiles = getProfiles();
+      const a = currentProfiles[selectA.value];
+      const b = currentProfiles[selectB.value];
+      if (!a || !b) return;
+
+      catalogPromise.then(catalog => {
+        const map = pairMap(catalog, currentProfiles);
+        const rows = comparisonRows(catalog, a, b, filter);
+
+        let both = 0, onlyA = 0, onlyB = 0, neither = 0;
+        for (const [key] of map) {
+          const ownsA = Object.prototype.hasOwnProperty.call(a.snapshot?.pairs || {}, key);
+          const ownsB = Object.prototype.hasOwnProperty.call(b.snapshot?.pairs || {}, key);
+          if (ownsA && ownsB) both++;
+          else if (ownsA) onlyA++;
+          else if (ownsB) onlyB++;
+          else neither++;
+        }
+
+        const stat = (key, label, value) => `
+          <button type="button" class="spt-compare-stat ${{filter===key?"is-active":""}" data-filter="${{key}">
+            <strong>${{value}</strong><span>${{esc(label)}</span>
+          </button>`;
+
+        const filters = `
+          <div class="spt-compare-filters">
+            <button type="button" class="spt-filter-chip ${{filter==="all"?"is-active":""}" data-filter="all">Show all</button>
+            <button type="button" class="spt-filter-chip ${{filter==="both"?"is-active":""}" data-filter="both">Show common</button>
+            <button type="button" class="spt-filter-chip ${{filter==="onlyA"?"is-active":""}" data-filter="onlyA">Only ${{esc(a.name)}</button>
+            <button type="button" class="spt-filter-chip ${{filter==="onlyB"?"is-active":""}" data-filter="onlyB">Only ${{esc(b.name)}</button>
+            <button type="button" class="spt-filter-chip ${{filter==="neither"?"is-active":""}" data-filter="neither">Neither</button>
+          </div>`;
+
+        const rowsHtml = rows.map(row => {
+          const statusLabel = row.status === "both"
+            ? "Both own"
+            : row.status === "onlyA"
+              ? "Only " + a.name
+              : row.status === "onlyB"
+                ? "Only " + b.name
+                : "Neither";
+
+          return `
+            <div class="spt-compare-row">
+              <div class="spt-compare-pair">
+                <strong>${{esc(row.label)}</strong>
+                <small>${{row.pair.releaseDate ? "Released " + esc(formatDate(row.pair.releaseDate)) : "Legacy / unknown"}</small>
+              </div>
+              <span class="spt-compare-status status-${{row.status}">${{esc(statusLabel)}</span>
+            </div>`;
+        }).join("");
+
+        content.innerHTML = `
+          <div class="spt-compare-title">
+            <strong>${{esc(a.name)} vs ${{esc(b.name)}</strong>
+            <span>${{rows.length} Duo${{rows.length === 1 ? "" : "s"} shown</span>
+          </div>
+          <div class="spt-compare-stats">
+            ${{stat("both", "Both own", both)}
+            ${{stat("onlyA", "Only " + a.name, onlyA)}
+            ${{stat("onlyB", "Only " + b.name, onlyB)}
+            ${{stat("neither", "Neither", neither)}
+          </div>
+          ${{filters}
+          <div class="spt-compare-list">${{rowsHtml || '<div class="spt-empty">No Sync Pairs match this filter.</div>'}</div>`;
+
+        content.querySelectorAll("[data-filter]").forEach(button => {
+          button.onclick = () => {
+            filter = button.dataset.filter;
+            render();
+          };
+        });
+      }).catch(() => {
+        content.innerHTML = '<div class="spt-empty">Unable to load the Sync Pair catalog.</div>';
+      });
+    }
+
+    selectA.onchange = () => {
+      if (selectA.value === selectB.value) {
+        const replacement = profileList.find(p => p.id !== selectA.value);
+        if (replacement) selectB.value = replacement.id;
+      }
+      filter = "all";
+      render();
+    };
+
+    selectB.onchange = () => {
+      if (selectB.value === selectA.value) {
+        const replacement = profileList.find(p => p.id !== selectB.value);
+        if (replacement) selectA.value = replacement.id;
+      }
+      filter = "all";
+      render();
+    };
+
+    render();
+  }
+
+  function enhanceMenu() {
+    const menu = document.querySelector("#sptProfileManager .spt-profile-menu");
+    if (!menu || menu.querySelector("#spt-profile-features")) return;
+
+    const separator = menu.querySelector(".spt-profile-separator");
+    const group = document.createElement("div");
+    group.id = "spt-profile-features";
+    group.className = "spt-profile-feature-group";
+    group.innerHTML = `
+      <button type="button" class="spt-profile-action" data-feature="compare">⇄ Compare profiles</button>
+      <button type="button" class="spt-profile-action" data-feature="new">✦ New since last visit <span class="spt-feature-badge">0</span></button>`;
+
+    if (separator) separator.insertAdjacentElement("beforebegin", group);
+    else menu.prepend(group);
+
+    group.querySelector("[data-feature='compare']").onclick = e => {
+      e.stopPropagation();
+      openCompare();
+    };
+    group.querySelector("[data-feature='new']").onclick = e => {
+      e.stopPropagation();
+      openNewSinceLastVisit();
+    };
+
+    refreshNewCount();
+  }
+
+  async function refreshNewCount() {
+    try {
+      const count = (await getNewPairs()).length;
+      updateNewCount(count);
+    } catch {}
+  }
+
+  function initFeatures() {
+    enhanceMenu();
+
+    const observer = new MutationObserver(() => {
+      enhanceMenu();
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    refreshNewCount();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initFeatures, { once: true });
+  } else {
+    initFeatures();
+  }
 })();
