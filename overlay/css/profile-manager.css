@@ -3,7 +3,7 @@
 .spt-profile-feature-group .spt-profile-action{justify-content:space-between}
 .spt-feature-badge{min-width:18px;height:18px;padding:0 5px;border-radius:10px;background:var(--blue1,#32788C);color:#fff;font-size:10px;display:inline-grid;place-items:center;font-weight:700}
 .spt-modal-backdrop{position:fixed;inset:0;z-index:10000;background:rgb(0 0 0 / 42%);display:flex;align-items:center;justify-content:center;padding:18px}
-.spt-modal{width:min(900px,96vw);max-height:90vh;overflow:hidden;display:flex;flex-direction:column;background:#eef6f7;border:1px solid var(--blue3,#82AEB5);border-radius:10px;box-shadow:0 18px 55px rgb(0 0 0 / 32%);color:#24515a}
+.spt-modal{width:80vw;max-width:none;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;background:#eef6f7;border:1px solid var(--blue3,#82AEB5);border-radius:10px;box-shadow:0 18px 55px rgb(0 0 0 / 32%);color:#24515a}
 .spt-modal-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 16px;background:var(--blue3,#82AEB5);color:#fff}
 .spt-modal-head small{font-size:9px;letter-spacing:.1em;opacity:.78}
 .spt-modal-head h2{margin:2px 0 0;font-size:18px}
