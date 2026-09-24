@@ -53,3 +53,6 @@
   .spt-compare-status{align-self:flex-start}
   .spt-new-row{align-items:flex-start}
 }
+
+/* Match the original tracker: the full app spans the viewport instead of leaving side bands. */
+#main{width:100%;margin-left:0;margin-right:0}
