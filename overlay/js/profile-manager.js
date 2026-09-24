@@ -324,11 +324,11 @@
     backdrop.className = "spt-modal-backdrop";
     backdrop.dataset.sptModal = type;
     backdrop.innerHTML = `
-      <div class="spt-modal" role="dialog" aria-modal="true" aria-label="${{esc(title)}">
+      <div class="spt-modal" role="dialog" aria-modal="true" aria-label="${esc(title)}">
         <div class="spt-modal-head">
           <div>
             <small>SYNC PAIRS TRACKER</small>
-            <h2>${{esc(title)}</h2>
+            <h2>${esc(title)}</h2>
           </div>
           <button type="button" class="spt-modal-close" aria-label="Close">×</button>
         </div>
@@ -367,8 +367,8 @@
         .map(pair => `
           <div class="spt-new-row">
             <div class="spt-new-main">
-              <strong>${{esc(profileLabel(pair))}</strong>
-              <small>Released ${{esc(formatDate(pair.releaseDate))}</small>
+              <strong>${esc(profileLabel(pair))}</strong>
+              <small>Released ${esc(formatDate(pair.releaseDate))}</small>
             </div>
             <span class="spt-new-tag">NEW</span>
           </div>`)
@@ -376,10 +376,10 @@
 
       modal.body.innerHTML = `
         <div class="spt-new-summary">
-          <strong>${{newPairs.length}</strong>
-          <span>new Sync Pair${{newPairs.length === 1 ? "" : "s"}</span>
+          <strong>${newPairs.length}</strong>
+          <span>new Sync Pair${newPairs.length === 1 ? "" : "s"}</span>
         </div>
-        ${{rows || '<div class="spt-empty">No new Sync Pairs since your last visit.</div>'}
+        ${rows || '<div class="spt-empty">No new Sync Pairs since your last visit.</div>'}
         <div class="spt-modal-actions">
           <button type="button" class="spt-modal-btn spt-modal-primary" data-action="mark-seen">Mark all as seen</button>
           <button type="button" class="spt-modal-btn" data-action="close">Close</button>
@@ -460,11 +460,11 @@
     const modal = createModal("compare", "Compare profiles");
     modal.body.innerHTML = `
       <div class="spt-compare-selectors">
-        <label>Profile A<select data-role="profile-a">${{profileList.map(p =>
-          `<option value="${{esc(p.id)}" ${{p.id===firstA?"selected":""}>${{esc(p.name)}</option>`).join("")}</select></label>
+        <label>Profile A<select data-role="profile-a">${profileList.map(p =>
+          `<option value="${esc(p.id)}" ${p.id===firstA?"selected":""}>${esc(p.name)}</option>`).join("")}</select></label>
         <div class="spt-compare-vs">VS</div>
-        <label>Profile B<select data-role="profile-b">${{profileList.map(p =>
-          `<option value="${{esc(p.id)}" ${{p.id===firstB?"selected":""}>${{esc(p.name)}</option>`).join("")}</select></label>
+        <label>Profile B<select data-role="profile-b">${profileList.map(p =>
+          `<option value="${esc(p.id)}" ${p.id===firstB?"selected":""}>${esc(p.name)}</option>`).join("")}</select></label>
       </div>
       <div class="spt-compare-content"><div class="spt-loading">Loading Sync Pairs…</div></div>`;
 
@@ -494,17 +494,17 @@
         }
 
         const stat = (key, label, value) => `
-          <button type="button" class="spt-compare-stat ${{filter===key?"is-active":""}" data-filter="${{key}">
-            <strong>${{value}</strong><span>${{esc(label)}</span>
+          <button type="button" class="spt-compare-stat ${filter===key?"is-active":""}" data-filter="${key}">
+            <strong>${value}</strong><span>${esc(label)}</span>
           </button>`;
 
         const filters = `
           <div class="spt-compare-filters">
-            <button type="button" class="spt-filter-chip ${{filter==="all"?"is-active":""}" data-filter="all">Show all</button>
-            <button type="button" class="spt-filter-chip ${{filter==="both"?"is-active":""}" data-filter="both">Show common</button>
-            <button type="button" class="spt-filter-chip ${{filter==="onlyA"?"is-active":""}" data-filter="onlyA">Only ${{esc(a.name)}</button>
-            <button type="button" class="spt-filter-chip ${{filter==="onlyB"?"is-active":""}" data-filter="onlyB">Only ${{esc(b.name)}</button>
-            <button type="button" class="spt-filter-chip ${{filter==="neither"?"is-active":""}" data-filter="neither">Neither</button>
+            <button type="button" class="spt-filter-chip ${filter==="all"?"is-active":""}" data-filter="all">Show all</button>
+            <button type="button" class="spt-filter-chip ${filter==="both"?"is-active":""}" data-filter="both">Show common</button>
+            <button type="button" class="spt-filter-chip ${filter==="onlyA"?"is-active":""}" data-filter="onlyA">Only ${esc(a.name)}</button>
+            <button type="button" class="spt-filter-chip ${filter==="onlyB"?"is-active":""}" data-filter="onlyB">Only ${esc(b.name)}</button>
+            <button type="button" class="spt-filter-chip ${filter==="neither"?"is-active":""}" data-filter="neither">Neither</button>
           </div>`;
 
         const rowsHtml = rows.map(row => {
@@ -519,26 +519,26 @@
           return `
             <div class="spt-compare-row">
               <div class="spt-compare-pair">
-                <strong>${{esc(row.label)}</strong>
-                <small>${{row.pair.releaseDate ? "Released " + esc(formatDate(row.pair.releaseDate)) : "Legacy / unknown"}</small>
+                <strong>${esc(row.label)}</strong>
+                <small>${row.pair.releaseDate ? "Released " + esc(formatDate(row.pair.releaseDate)) : "Legacy / unknown"}</small>
               </div>
-              <span class="spt-compare-status status-${{row.status}">${{esc(statusLabel)}</span>
+              <span class="spt-compare-status status-${row.status}">${esc(statusLabel)}</span>
             </div>`;
         }).join("");
 
         content.innerHTML = `
           <div class="spt-compare-title">
-            <strong>${{esc(a.name)} vs ${{esc(b.name)}</strong>
-            <span>${{rows.length} Duo${{rows.length === 1 ? "" : "s"} shown</span>
+            <strong>${esc(a.name)} vs ${esc(b.name)}</strong>
+            <span>${rows.length} Duo${rows.length === 1 ? "" : "s"} shown</span>
           </div>
           <div class="spt-compare-stats">
-            ${{stat("both", "Both own", both)}
-            ${{stat("onlyA", "Only " + a.name, onlyA)}
-            ${{stat("onlyB", "Only " + b.name, onlyB)}
-            ${{stat("neither", "Neither", neither)}
+            ${stat("both", "Both own", both)}
+            ${stat("onlyA", "Only " + a.name, onlyA)}
+            ${stat("onlyB", "Only " + b.name, onlyB)}
+            ${stat("neither", "Neither", neither)}
           </div>
-          ${{filters}
-          <div class="spt-compare-list">${{rowsHtml || '<div class="spt-empty">No Sync Pairs match this filter.</div>'}</div>`;
+          ${filters}
+          <div class="spt-compare-list">${rowsHtml || '<div class="spt-empty">No Sync Pairs match this filter.</div>'}</div>`;
 
         content.querySelectorAll("[data-filter]").forEach(button => {
           button.onclick = () => {
